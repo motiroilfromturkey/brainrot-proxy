@@ -1,12 +1,9 @@
 // server.js
 const express = require("express");
-const fetch = require("node-fetch"); // fetch library for proxying
+const fetch = (...args) => import("node-fetch").then(({default: fetch}) => fetch(...args));
 const app = express();
 
-// Use Render's assigned port
 const PORT = process.env.PORT || 3000;
-
-// Target Brainrot site
 const TARGET = "https://brainrot.neocities.org";
 
 // Proxy all GET requests
