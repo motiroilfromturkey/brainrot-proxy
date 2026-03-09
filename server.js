@@ -1,20 +1,27 @@
+// server.js
 const express = require("express");
-const cors = require("cors");
-
+const fetch = require("node-fetch"); // fetch library for proxying
 const app = express();
-app.use(cors());
 
-app.get("/brainrot", async (req,res)=>{
-  const r = await fetch("https://www.reddit.com/search.json?q=italian+brainrot&limit=50");
-  const data = await r.json();
+// Use Render's assigned port
+const PORT = process.env.PORT || 3000;
 
-  const posts = data.data.children.map(p=>({
-    title:p.data.title,
-    image:p.data.thumbnail,
-    url:"https://reddit.com"+p.data.permalink
-  }));
+// Target Brainrot site
+const TARGET = "https://brainrot.neocities.org";
 
-  res.json(posts);
+// Proxy all GET requests
+app.get("*", async (req, res) => {
+  try {
+    const url = TARGET + req.originalUrl;
+    const response = await fetch(url);
+    const body = await response.text();
+    res.send(body);
+  } catch (err) {
+    res.status(500).send("Error fetching site: " + err.message);
+  }
 });
 
-app.listen(3000,()=>console.log("running"));
+// Start server
+app.listen(PORT, () => {
+  console.log(`Brainrot proxy running on port ${PORT}`);
+});
